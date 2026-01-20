@@ -1,0 +1,73 @@
+import argparse
+
+parser = argparse.ArgumentParser()
+
+# generic
+parser.add_argument("--device", type=str, default='cuda:0') #device to train on
+parser.add_argument("--workers", type=int, default=4) #number of workers
+
+# data path
+parser.add_argument("--traindir", type=str, default='/data/msc-proj/Training_Set') #root dir for the training dataset
+parser.add_argument("--valdir", type=str, default='/data/msc-proj/Validation_Set_DSAI_2025_2026') #root dir for the validation dataset
+
+# file names
+parser.add_argument('--model_name', type=str, default ='default_train', help="name of the trained model pth file")
+parser.add_argument('--csv_file', type=str, default ='output_csv', help="name of the output csv file with predictions")
+
+# training
+parser.add_argument("--method", type=str, default='scl') #whether to use scl or ce loss for training
+parser.add_argument("--bs", type=int, default=128) #batch size for representation learning (training stage)
+parser.add_argument("--wd", type=float, default=1e-4) #weight decay
+parser.add_argument("--momentum", type=float, default=0.9) #sgd momentum
+parser.add_argument("--lr", type=float, default=1e-2) #learning rate 
+parser.add_argument("--usetcr", type=bool, default=True) #use TCR regularization
+parser.add_argument("--epochs", type=int, default=100) #nb of epochs to train the feature extractor on the training set
+parser.add_argument("--nTrainingViews", type=int, default=2) #number of views to create for each sample in the training set
+parser.add_argument("--nTransforms", type=int, default=2) #number of diff augmentation transformations to create for each sample in the training set
+
+
+# few shot
+parser.add_argument("--nshot", type=int, default=5) #number of shots
+
+# audio
+parser.add_argument("--sr", type=int, default=22050) #sampling rate for audio
+parser.add_argument("--len", type=int, default=200) #segment duration for training in ms
+
+# mel spec parameters
+parser.add_argument("--nmels", type=int, default=128) #number of mels
+parser.add_argument("--nfft", type=int, default=512) #size of FFT
+parser.add_argument("--hoplen", type=int, default=128) #hop between STFT windows
+parser.add_argument("--fmax", type=int, default=11025) #fmax
+parser.add_argument("--fmin", type=int, default=50) #fmin
+
+# data augmentation
+parser.add_argument("--tratio", type=float, default=0.6) #time ratio for spectrogram crop
+parser.add_argument("--noise", type=float, default=0.01) #standard deviation for additive white gaussian noise
+parser.add_argument("--comp", type=float, default=0.75) #compander coefficient to compress signal
+parser.add_argument("--fshift", type=int, default=10) #frequency bands to shift upwards
+
+# views for support/query at inference
+parser.add_argument("--multiview", type=bool, default=True) #create views for support/query
+parser.add_argument("--nviews", type=int, default=20) #number of views created for each support/query sample during inference
+parser.add_argument("--qbs", type=int, default=16) #batch size for query prediction (inference stage)
+
+# finetuning
+parser.add_argument("--ftlr", type=float, default=1e-2) #learning rate for finetuning on support set
+parser.add_argument("--ftepochs", type=int, default=40) #nb of epochs to finetune on support set
+parser.add_argument("--ftbs", type=int, default=32) #batch size for fine tuning prototypes
+parser.add_argument("--ft", type=int, default=3) #number of layers to finetune; 0 or 3 layers (for the ResNet we are using)
+parser.add_argument("--ftmethod", type=str, default='scl') #whether to use scl or ce loss for finetuning ['scl', 'ce']
+
+
+# loss hyperparams
+parser.add_argument("--tau", type=float, default=0.06) #temperature for SupCon
+parser.add_argument("--eps", type=float, default=0.05) #epsilon² of TCR regularization
+parser.add_argument("--alpha", type=float, default=1e-3) #loss coef for TCR regularization
+
+
+# for ce loss
+parser.add_argument("--adam", action='store_true') #use adam instead of sgd
+parser.add_argument("--step", type=int, default=10) #scheduler step size for adam
+parser.add_argument("--gamma", type=float, default=0.5) #scheduler gamma for adam
+
+args = parser.parse_args()
