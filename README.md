@@ -1,44 +1,115 @@
-First Change the data path directories for training and validation datsets 
-in args: --traindir and --valdir
+# Regularized Supervised Contrastive Learning for DCASE Taske 5 - Few shot Bioacoustic Event Detection
 
-1. RSCL pretraining + prototypical fine-tuning (default args from args.py):
-python3 train.py --model_name="ckpt"
+This repository trains a feature extractor using **Regularized Supervised Contrastive Learning (RSCL / SCL + TCR)** and evaluates it in a **few-shot** setting using **prototypical fine-tuning** (either with **proto loss (SCL)** or **cross-entropy (CE)** with a linear classifier).
 
-Evaluation -
-a. protoloss: (scl method)
+---
+### 1) Initial Setup
 
-eval with no freezing:
-python3 eval_finetune.py --model_name="ckpt" --csv_file="protoLoss_no_frozen" 
+#### Requirements
+- Python 3.x
+- Install the required Python packages listed in requirements.txt using pip inside your virtual environment:
+--> pip install -r requirements.txt
 
-eval with FREEZING:
-python3 eval_finetune.py --ft=0 --model_name="ckpt" --csv_file="protoLoss_frozen"
+#### Data Paths 
 
-b. CE with linear classifier:
+Before running anything, update dataset root directories via args:
 
-eval with no freezing:
-python3 eval_finetune.py --ftmethod="ce" --model_name="ckpt" --csv_file="ceLoss_no_frozen" 
+- `--traindir` : training dataset root directory  
+- `--valdir`   : validation dataset root directory  
 
-eval with FREEZING:
-python3 eval_finetune.py --ftmethod="ce" --ft=0 --model_name="ckpt" --csv_file="ceLoss_frozen"
+Defaults (from `args.py`):
+- `--traindir /data/msc-proj/Training_Set`
+- `--valdir   /data/msc-proj/Validation_Set_DSAI_2025_2026`
 
+#### Key Scripts
 
-2. Three-view RSCL pretraining with an additional augmentation transform: (BEST MODEL)
-python3 train.py --epochs=150 bs=64 --nTrainingViews=3 --nTransforms=3 --model_name="3rdtransform_pretraining"
+- train.py
+Runs RSCL pretraining (feature extractor / encoder training).
+- eval_finetune.py
+Performs few-shot evaluation with fine-tuning and writes predictions to a CSV.
+---
 
-eval with no freezing:
-python3 eval_finetune.py --model_name="3rdtransform_pretraining" --csv_file="eval_3rdtransform_pretraining" 
+### 2) Experimentations
+To run different experimentations, this section lists the exact arguments/configurations to be used:
 
+#### Experiment 1 -> Baseline: RSCL pretraining with Fine-tuning Variants 
+(default args)
+```python3 train.py --model_name "ckpt" ```
 
-3. Four-view RSCL pretraining using same transorms (same augemntation pipelines used in (1)):
-python3 train.py --epochs=150 bs=64 --nTrainingViews=4 --model_name="4views_pretraining"
+##### Evaluation A: Proto loss (SCL)
+- Evaluate with no freezing (fine-tune last 3 layers, default --ft=3)
+```python3 eval_finetune.py --model_name="ckpt" --csv_file="protoLoss_no_frozen"```
+- Evaluate with FREEZING (no fine-tuning, --ft=0)
+```python3 eval_finetune.py --ft=0 --model_name="ckpt" --csv_file="protoLoss_frozen"```
 
-eval with no freezing:
-python3 eval_finetune.py --model_name="4views_pretraining" --csv_file="eval_4views_pretraining"
+##### Evaluation B: CE loss (linear classifier)
+- Evaluate with no freezing (fine-tune last 3 layers, default --ft=3)
+```python3 eval_finetune.py --ftmethod="ce" --model_name="ckpt" --csv_file="ceLoss_no_frozen"```
+- Evaluate with FREEZING (no fine-tuning, --ft=0)
+```python3 eval_finetune.py --ftmethod="ce" --ft=0 --model_name="ckpt" --csv_file="ceLoss_frozen"```
 
-model_name and csv_file name are just for reference of how they have been saved by us. you can change them as your preference accordingly.
+#### Experiment 2 -> (BEST MODEL) 3-view RSCL pretraining with an additional augmentation transform
+- Train:
+```python3 train.py --epochs=150 bs=64 --nTrainingViews=3 --nTransforms=3 --model_name="3rdtransform_pretraining"```
+- Evaluate (no freezing):
+```python3 eval_finetune.py --model_name "3rdtransform_pretraining" --csv_file "eval_3rdtransform_pretraining"```
 
+#### Experiment 3 -> 4 view RSCL pretraining using the same transforms (same augmentation pipelines used in (1) but additional views)
+- Train:
+```python3 train.py --epochs=150 bs=64 --nTrainingViews=4 --model_name="4views_pretraining"```
+- Evaluate (no freezing):
+```python3 eval_finetune.py --model_name="4views_pretraining" --csv_file="eval_4views_pretraining"```
 
+### Notes on `--model_name` and `--csv_file`
+- `--model_name` and `--csv_file` are **just filenames** used to save:
+  - model checkpoints (`.pth`)
+  - prediction outputs (`.csv`)
+- On the server, these outputs are typically stored here:
+  - Checkpoints: `/data/msc-proj/model/`
+  - CSV outputs: `/data/msc-proj/outputs/`
 
+If you want to reuse or track previous runs, you can look up the files in those directories using the same names provided in the above Experimentation examples. 
 
+---
 
+### 3) Get Final Scores
+After `eval_finetune` generates a CSV file with predictions, compute the final evaluation scores by running `evaluation.py` with the following arguments:
 
+--pred_file: Path to the CSV file containing predictions (generated by eval_finetune).
+--ref_files_path: Root directory of the validation/evaluation dataset containing the annotated reference CSV files.
+--team_name: Any name to identify the run (used for tracking/logging).
+--dataset: Which split to evaluate on (VAL or EVAL).
+--savepath: Output path to save the final JSON file containing the computed scores.
+
+For example (Evaluation on Best model with Validation Set):
+```python3 evaluation.py --pred_file /data/msc-proj/outputs/eval_3rdtransform_pretraining --ref_files_path /data/msc-proj/Validation_Set_DSAI_2025_2026 --team_name BestModel —dataset VAL —savepath /data/msc-proj/outputs/new_scores```
+
+---
+### Notes (Evaluation Set)
+- If you want to run `eval_finetune` on the **Evaluation** dataset (instead of Validation):
+  1. Update `valdir` in `args.py` to point to the **Evaluation set** directory.
+  2. Reduce the fine-tuning batch size from **32 -> 8**, since Evaluation files are larger and may cause **OOM (out-of-memory)** errors.
+
+- If running `eval_finetune` on the Evaluation set takes too long, a pre-generated predictions CSV is already available on the server:
+  - `/data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026.csv`
+
+You can use it directly with `evaluation.py`
+
+For example:
+```python3 evaluation.py --pred_file /data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026.csv --ref_files_path /data/msc-proj/Evaluation_Set_path --team_name BestModel —dataset EVAL —savepath /data/msc-proj/outputs/new_scores```
+
+---
+
+### Credits
+
+We would like to thank the following paper and its implementation for providing the foundation for our framework and experiments:
+ ```
+@misc{moummad2023regularized,
+      title={Regularized Contrastive Pre-training for Few-shot Bioacoustic Sound Detection}, 
+      author={Ilyass Moummad and Romain Serizel and Nicolas Farrugia},
+      year={2023},
+      eprint={2309.08971},
+      archivePrefix={arXiv},
+      primaryClass={cs.SD}
+}
+```
