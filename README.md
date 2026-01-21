@@ -82,7 +82,7 @@ After `eval_finetune` generates a CSV file with predictions, compute the final e
 - --savepath: Output path to save the final JSON file containing the computed scores.
 
 For example (Evaluation on Best model with Validation Set):
-```python3 evaluation.py --pred_file /data/msc-proj/outputs/eval_3rdtransform_pretraining --ref_files_path /data/msc-proj/Validation_Set_DSAI_2025_2026 --team_name BestModel —dataset VAL —savepath /data/msc-proj/outputs/new_scores```
+```python3 evaluation.py --pred_file /data/msc-proj/outputs/eval_3rdtransform_pretraining.csv --ref_files_path /data/msc-proj/Validation_Set_DSAI_2025_2026 --team_name BestModel —dataset VAL —savepath /data/msc-proj/outputs/new_scores```
 
 ---
 ### Notes (Evaluation Set)
