@@ -88,7 +88,7 @@ For example (Evaluation on Best model with Validation Set):
 ### Notes (Evaluation Set)
 - If you want to run `eval_finetune` on the **Evaluation** dataset (instead of Validation):
   1. Update `valdir` in `args.py` to point to the **Evaluation set** directory.
-  2. Reduce the fine-tuning batch size from **32 -> 8**, since Evaluation files are larger and may cause **OOM (out-of-memory)** errors.
+  2. Reduce the fine-tuning batch size (--ftbs) from **32 -> 8**, since Evaluation files are larger and may cause **OOM (out-of-memory)** errors.
 
 - If running `eval_finetune` on the Evaluation set takes too long, a pre-generated predictions CSV is already available on the server:
   - `/data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026.csv`
