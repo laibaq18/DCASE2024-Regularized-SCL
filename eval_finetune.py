@@ -13,6 +13,7 @@ import os
 from augmentations import RandomCrop, Resize, GaussNoise, Compander, FreqShift
 from evaluation import evaluate
 from args import args
+from utils_eval import evaluate_with_ce, evaluate_with_protoloss
 
 
 # General params
