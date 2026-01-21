@@ -1,6 +1,6 @@
 # Regularized Supervised Contrastive Learning for DCASE Taske 5 - Few shot Bioacoustic Event Detection
 
-This repository trains a feature extractor using **Regularized Supervised Contrastive Learning (RSCL / SCL + TCR)** and evaluates it in a **few-shot** setting using **prototypical fine-tuning** (either with **proto loss (SCL)** or **cross-entropy (CE)** with a linear classifier).
+This repository trains a feature extractor using **Regularized Supervised Contrastive Learning (RSCL / SCL + TCR)** and evaluates it in a **few-shot** setting using **fine-tuning** (either with **proto loss (SCL)** or **cross-entropy (CE)** with a linear classifier).
 
 ---
 ### 1) Initial Setup
