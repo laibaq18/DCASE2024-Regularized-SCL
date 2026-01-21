@@ -2,6 +2,8 @@
 
 This repository trains a feature extractor using **Regularized Supervised Contrastive Learning (RSCL / SCL + TCR)** and evaluates it in a **few-shot** setting using **fine-tuning** (either with **proto loss (SCL)** or **cross-entropy (CE)** with a linear classifier).
 
+[Problem Statement](https://dcase.community/challenge2023/task-few-shot-bioacoustic-event-detection)
+
 ---
 ### 1) Initial Setup
 
