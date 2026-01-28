@@ -91,14 +91,22 @@ For example (Evaluation on Best model with Validation Set):
 - If you want to run `eval_finetune` on the **Evaluation** dataset (instead of Validation):
   1. Update `valdir` in `args.py` to point to the **Evaluation set** directory.
   2. Reduce the fine-tuning batch size (--ftbs) from **32 -> 8**, since Evaluation files are larger and may cause **OOM (out-of-memory)** errors.
+  3. Don't finetune on the Evaluation Set **(set --ft = 0)**
+  4. Since some wav files in the Eval set are not mono-channel, it can give an error. To mitigate that, please insert this block in the file:
+  ```between lines 91 and 93 in eval_finetune.py:
+    if wav.shape[0] > 1:
+        wav = wav.mean(dim=0, keepdim=True)```
 
 - If running `eval_finetune` on the Evaluation set takes too long, a pre-generated predictions CSV is already available on the server:
-  - `/data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026.csv`
-
+  - `/data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026_no_finetuning.csv`
+ 
 You can use it directly with `evaluation.py`
 
 For example:
-```python3 evaluation.py --pred_file /data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026.csv --ref_files_path /data/msc-proj/Evaluation_Set_path --team_name BestModel —dataset EVAL —savepath /data/msc-proj/outputs/new_scores```
+```python3 evaluation.py --pred_file /data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026_no_finetuning.csv --ref_files_path /data/msc-proj/Evaluation_Set_path --team_name BestModel —dataset EVAL —savepath /data/msc-proj/outputs/new_scores```
+ 
+- We also ran the `eval_finetune` on the Evaluation set WITH FINETUNING (not allowed in the DCASE 2024 task description) for experimentation purposes. The predictions CSV for this is also already available on the server:
+  - `/data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026_with_finetuning.csv`
 
 ---
 
