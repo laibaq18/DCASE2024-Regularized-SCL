@@ -96,7 +96,8 @@ For example (Evaluation on Best model with Validation Set):
   ```
   between lines 91 and 93 in eval_finetune.py:
     if wav.shape[0] > 1:
-        wav = wav.mean(dim=0, keepdim=True) ```
+        wav = wav.mean(dim=0, keepdim=True)
+  ```
 
 - If running `eval_finetune` on the Evaluation set takes too long, a pre-generated predictions CSV is already available on the server:
   - `/data/msc-proj/outputs/eval_Evaluation_Set_DSAI_2025_2026_no_finetuning.csv`
